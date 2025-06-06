@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Add a New Manga</h1>
+    <form id="add-manga-form">
+        <label>Title: <input type="text" name="title" required /></label><br>
+        <label>Category ID: <input type="number" name="category_id" /></label><br>
+        <button type="submit">Add</button>
+    </form>
+
+
+    <script>
+        document.getElementById('add-manga-form').addEventListener('submit', async e => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const payload = {
+            title: formData.get('title'),
+            category_id: parseInt(formData.get('category_id')) || null
+          };
+    
+          await fetch('/api/manga', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+    
+          alert('Book added!');
+          e.target.reset();
+        });
+      </script>
+</body>
+</html>
