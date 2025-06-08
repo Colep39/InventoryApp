@@ -4,26 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manga Dex</title>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <h1>Manga</h1>
-    <ul id="manga-list"></ul>
+    
+        <div id="header">
+            <div id="title">
+                <h1><a href="/">Manga Dex</a></h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/add-book.html">Add Manga</a></li>
+                    <li><a href="/categories.html">Categories</a></li>
+                </ul>
+                <form id="search-form">
+                    <input type="text" name="search" placeholder="Search Manga" required>
+                    <button type="submit">Search</button>
+                </form>
+            </nav>
+        </div>
+
+    <div id="page-content">
+    <div id="hero">
+        <h2>Welcome to Manga Dex</h2>
+        <p>Your one-stop destination for all your favorite manga titles.</p>
+    </div>
+
+    <h2>Featured Manga</h2>
+    <div id="manga-list">
+        <ul>
+           
+        </ul>
+    </div>
+    </div>
+
+    <div id="footer">
+        <p>&copy; 2025 Manga Dex. All rights reserved.</p>
+        <p>Follow us on <a href="https://twitter.com/mangadex">Twitter</a> for updates!</p>
+
+    </div>
 
     
     <script>
-        /*
         fetch('/api/manga')
-            .then(res => res.json())
-            .then(books => {
-                const list = document.getElementById('manga-list');
-                books.forEach(book => {
-                    const li = document.createElement('li');
-                    li.textContent = `${book.title} (${book.category || 'Uncategorized'})`;
-                    list.appendChild(li);
-                });
+          .then(res => res.json())
+          .then(books => {
+            const list = document.getElementById('manga-list');
+            books.forEach(book => {
+              const li = document.createElement('li');
+      
+              li.innerHTML = `
+                <div class="manga-card">
+                  ${book.img_url ? `<img src="${book.img_url}" alt="${book.title}" class="manga-thumbnail" />` : ''}
+                  <div class="manga-info">
+                    <h3>${book.title}</h3>
+                    <p><strong>Author:</strong> ${book.author || 'Unknown'}</p>
+                    <p><strong>Category:</strong> ${book.category || 'Uncategorized'}</p>
+                  </div>
+                </div>
+              `;
+      
+              list.appendChild(li);
             });
-        */
-    </script>
-    
+          });
+      </script>
+      
 </body>
 </html>

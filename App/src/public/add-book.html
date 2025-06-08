@@ -1,37 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manga Dex</title>
+  <link rel="stylesheet" href="index.css" />
 </head>
 <body>
-    <h1>Add a New Manga</h1>
-    <form id="add-manga-form">
-        <label>Title: <input type="text" name="title" required /></label><br>
-        <label>Category ID: <input type="number" name="category_id" /></label><br>
-        <button type="submit">Add</button>
+  <div id="header">
+    <div id="title">
+      <h1><a href="/">Manga Dex</a></h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/add-book.html">Add Manga</a></li>
+        <li><a href="/categories.html">Categories</a></li>
+      </ul>
+      <form id="search-form">
+        <input type="text" name="search" placeholder="Search Manga" required />
+        <button type="submit">Search</button>
+      </form>
+    </nav>
+  </div>
+
+  <div id="page-content">
+    <h1 id="add-title">Add a New Manga</h1>
+    <form id="add-manga-form" action="/api/manga" method="POST">
+      <label>Title: <input type="text" name="title" required /></label><br>
+      <label>Author: <input type="text" name="author" required /></label><br>
+      <label>Image URL: <input type="text" name="img_url" /></label><br>
+      <label>Category:
+        <select name="category_id" id="category-select" required>
+          <option value="">Select a category</option>
+        </select>
+      </label><br>      
+      <button type="submit">Add</button>
     </form>
+  </div>
 
+  <div id="footer">
+    <p>&copy; 2025 Manga Dex. All rights reserved.</p>
+    <p>Follow us on <a href="https://twitter.com/mangadex">Twitter</a> for updates!</p>
+  </div>
 
-    <script>
-        document.getElementById('add-manga-form').addEventListener('submit', async e => {
-          e.preventDefault();
-          const formData = new FormData(e.target);
-          const payload = {
-            title: formData.get('title'),
-            category_id: parseInt(formData.get('category_id')) || null
-          };
-    
-          await fetch('/api/manga', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-    
-          alert('Book added!');
-          e.target.reset();
+  <script>
+    // Populate category dropdown on page load
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(categories => {
+        const select = document.getElementById('category-select');
+        categories.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.id;
+          option.textContent = cat.name;
+          select.appendChild(option);
         });
-      </script>
+      });
+  
+   // Form submit logic
+  document.getElementById('add-manga-form').addEventListener('submit', async e => {
+    e.preventDefault();
+
+    // ← Place your code right here
+    const formData = new FormData(e.target);
+    const payload = {
+      title: formData.get('title'),
+      author: formData.get('author'),
+      img_url: formData.get('img_url') || null,
+      category_id: parseInt(formData.get('category_id')) || null
+    };
+
+    try {
+      const res = await fetch('/api/manga', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error('Failed to add manga');
+      alert('Manga added!');
+      e.target.reset();
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
+  });
+  </script>
 </body>
 </html>
