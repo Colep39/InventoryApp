@@ -23,12 +23,10 @@ exports.viewItem = async (req, res) => {
 
   try {
     const result = await db.query(
-      `SELECT m.id, m.title, m.author, m.img_url, json_agg(c.name) AS categories
+      `SELECT m.id, m.title, m.author, m.img_url, m.category_id, c.name AS category_name
        FROM manga m
-       LEFT JOIN manga_categories mc ON m.id = mc.manga_id
-       LEFT JOIN categories c ON mc.category_id = c.id
-       WHERE m.id = $1
-       GROUP BY m.id`,
+       LEFT JOIN categories c ON m.category_id = c.id
+       WHERE m.id = $1`,
       [id]
     );
 
@@ -43,19 +41,32 @@ exports.viewItem = async (req, res) => {
   }
 };
 
+
 exports.updateManga = async (req, res) => {
   const { id } = req.params;
-  const { title, author, img_url } = req.body;
+  const { title, author, img_url, category_id } = req.body;
 
   try {
     await db.query(
-      `UPDATE manga SET title = $1, author = $2, img_url = $3 WHERE id = $4`,
-      [title, author, img_url, id]
+      `UPDATE manga SET title = $1, author = $2, img_url = $3, category_id = $4 WHERE id = $5`,
+      [title, author, img_url, category_id, id]
     );
-
-    res.redirect('/');
+    res.json({ success: true });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error updating manga" });
   }
 };
+
+exports.deleteItem = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await db.query('DELETE FROM manga WHERE id = $1', [id]);
+    res.json({ message: "Manga deleted successfully"});
+  }
+  catch(err){
+    console.error(err);
+    res.status(500).json({ error: "Error deleting manga" });
+  }
+}

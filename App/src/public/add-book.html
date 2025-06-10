@@ -61,8 +61,6 @@
    // Form submit logic
   document.getElementById('add-manga-form').addEventListener('submit', async e => {
     e.preventDefault();
-
-    // ← Place your code right here
     const formData = new FormData(e.target);
     const payload = {
       title: formData.get('title'),

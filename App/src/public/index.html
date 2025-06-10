@@ -33,8 +33,8 @@
 
     <h2>Featured Manga</h2>
     <div id="manga-list">
-        <ul>
-           
+        <ul id="manga-container">
+  
         </ul>
     </div>
     </div>
@@ -50,11 +50,12 @@
         fetch('/api/manga')
           .then(res => res.json())
           .then(books => {
-            const list = document.getElementById('manga-list');
+            const list = document.getElementById('manga-container');
             books.forEach(book => {
               const li = document.createElement('li');
       
               li.innerHTML = `
+              <a href="edit-book.html?id=${book.id}" class="manga-link">
                 <div class="manga-card">
                   ${book.img_url ? `<img src="${book.img_url}" alt="${book.title}" class="manga-thumbnail" />` : ''}
                   <div class="manga-info">
@@ -63,6 +64,7 @@
                     <p><strong>Category:</strong> ${book.category || 'Uncategorized'}</p>
                   </div>
                 </div>
+              </a>
               `;
       
               list.appendChild(li);

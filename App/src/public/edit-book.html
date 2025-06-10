@@ -1,41 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manga Dex</title>
-    <link rel="stylesheet" href="index.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Manga</title>
+  <link rel="stylesheet" href="index.css" />
 </head>
 <body>
-    <div id="header">
-        <div id="title">
-            <h1><a href="/">Manga Dex</a></h1>
-        </div>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/add-book.html">Add Manga</a></li>
-                <li><a href="/categories.html">Categories</a></li>
-            </ul>
-            <form id="search-form">
-                <input type="text" name="search" placeholder="Search Manga" required>
-                <button type="submit">Search</button>
-            </form>
-        </nav>
+  <div id="header">
+    <div id="title">
+      <h1><a href="/">Manga Dex</a></h1>
     </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/add-book.html">Add Manga</a></li>
+        <li><a href="/categories.html">Categories</a></li>
+      </ul>
+    </nav>
+  </div>
 
+  <div id="page-content">
     <h2>Edit Manga</h2>
-    <form action="/api/manga/{{id}}" method="POST" class="edit-form">
-        <input type="text" name="title" value="{{title}}" required />
-        <input type="text" name="author" value="{{author}}" required />
-        <input type="text" name="img_url" value="{{img_url}}" />
-        <input type="text" name="category_id" value="{{category_id}}" required />
-        <button type="submit">Update Book</button>
+    <form id="edit-form">
+      <label>Title: <input type="text" name="title" required /></label><br>
+      <label>Author: <input type="text" name="author" required /></label><br>
+      <label>Image URL: <input type="text" name="img_url" /></label><br>
+      <label>Category:
+        <select name="category_id" id="category-select" required>
+          <option value="">Select a category</option>
+        </select>
+      </label><br>
+      <div id="button-container">
+        <button type="submit">Update Manga</button>
+        <button id="delete-button" type="button">Delete</button>
+      </div>
     </form>
+  </div>
 
-    <div id="footer">
-        <p>&copy; 2025 Manga Dex. All rights reserved.</p>
-        <p>Follow us on <a href="https://twitter.com/mangadex">Twitter</a> for updates!</p>
-    </div>
+  <div id="footer">
+    <p>&copy; 2025 Manga Dex. All rights reserved.</p>
+    <p>Follow us on <a href="https://twitter.com/mangadex">Twitter</a> for updates!</p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    // Load categories into dropdown
+    async function loadCategories(selectedId = null) {
+      const res = await fetch('/api/categories');
+      const categories = await res.json();
+      const select = document.getElementById('category-select');
+      categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = cat.name;
+        if (cat.id === selectedId) option.selected = true;
+        select.appendChild(option);
+      });
+    }
+
+    document.getElementById('delete-button').addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to delete this manga?')) return;
+
+    try {
+      const res = await fetch(`/api/manga/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (!res.ok) throw new Error('Failed to delete manga');
+        alert('Manga deleted!');
+        window.location.href = '/'; // Redirect to home
+        } catch (err) {
+        alert('Error: ' + err.message);
+    }
+    });
+
+
+    // Load existing manga data and prefill the form
+    async function loadManga() {
+      const res = await fetch(`/api/manga/${id}`);
+      const manga = await res.json();
+
+      document.querySelector('[name="title"]').value = manga.title;
+      document.querySelector('[name="author"]').value = manga.author;
+      document.querySelector('[name="img_url"]').value = manga.img_url || '';
+
+      await loadCategories(manga.category_id); // pass selected category ID
+    }
+
+    // Handle form submit
+    document.getElementById('edit-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const payload = {
+        title: formData.get('title'),
+        author: formData.get('author'),
+        img_url: formData.get('img_url') || null,
+        category_id: parseInt(formData.get('category_id')) || null
+      };
+
+      const res = await fetch(`/api/manga/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        alert("Manga updated!");
+        window.location.href = "/";
+      } else {
+        const err = await res.json();
+        alert("Error: " + (err.error || 'Failed to update manga'));
+      }
+    });
+
+    loadManga();
+  </script>
 </body>
 </html>

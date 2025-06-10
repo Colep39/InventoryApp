@@ -6,7 +6,9 @@ const categoryController = require('../controllers/categoryController');
 
 router.get('/manga', bookController.getManga);
 router.post('/manga', bookController.addManga);
-router.post('/manga/:id', bookController.updateManga);
+router.get('/manga/:id', bookController.viewItem);
+router.put('/manga/:id', bookController.updateManga);
+router.delete('/manga/:id', bookController.deleteItem);
 
 router.get('/categories', categoryController.getAllCategories);
 router.get('/categories/:id', categoryController.viewCategory);
